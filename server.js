@@ -8,6 +8,14 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 let addID = 0;
 
+async function inicia(){
+    await storage.init();
+    await storage.setItem('Noticia', [{"ID":0,"titulo":"Iniciado","resumo":"Iniciado","url":"www.Inicio.com.br"}]);
+    await storage.setItem('Email', [{user: 'lavinia.schinner60@ethereal.email', pass: 'qQNWuaB47qvh6wnseg'}]);
+}
+
+app.init = inicia();
+
 async function getNoticia(){
     await storage.init();
     const aux = await storage.getItem('Noticia');
@@ -24,12 +32,8 @@ app.get('/noticia', async (req, res) =>{
 async function postNoticia(noticia, geraid){
     await storage.init();
     const recebeNoticia = await storage.getItem('Noticia');
-    if(recebeNoticia == null){//Gera a noticia caso ela não exista
-        await storage.setItem('Noticia', [{"ID":0,"titulo":"O primeiro","resumo":"Primeiro","url":"www.primeiro.com.br"}]);
-    }else{//Atualiza com uma nova noticia
-        recebeNoticia.push({ID: geraid, titulo: noticia.titulo, resumo: noticia.resumo, url: noticia.url});
-        await storage.updateItem('Noticia', recebeNoticia);
-    }
+    recebeNoticia.push({ID: geraid, titulo: noticia.titulo, resumo: noticia.resumo, url: noticia.url});
+    storage.updateItem('Noticia', recebeNoticia);
 }
 
 app.post('/noticia', async (req, res) => {
@@ -42,8 +46,7 @@ app.post('/noticia', async (req, res) => {
 async function getNoticiaID(ID){
     await storage.init();
     const recebeNoticia1 = await storage.getItem('Noticia');
-    var auxNoticiaId = recebeNoticia1;
-    auxNoticiaId = recebeNoticia1.find(b => b.ID == ID);
+    var auxNoticiaId = recebeNoticia1.find(b => b.ID == ID);
     return auxNoticiaId;
 }
 app.get('/noticia/:noticiaId', (req, res) => {
@@ -65,18 +68,14 @@ app.get('/noticia/:noticiaId', (req, res) => {
 async function postInscricao(email){
     await storage.init();
     const recebEmail = await storage.getItem('Email');
-    if(recebEmail == null){//Gera um email caso ele não exista
-        await storage.setItem('Email', [{user: 'lavinia.schinner60@ethereal.email', pass: 'qQNWuaB47qvh6wnseg'}]);
-    }else{//Atualiza com um novo email
-        recebEmail.push({user: email.user, pass: email.pass});
-        await storage.updateItem('Email', recebEmail);
-    }
+    recebEmail.push({user: email.user, pass: email.pass});
+    await storage.updateItem('Email', recebEmail);
 }
 
 app.post('/inscricao', async (req, res) => {
     const novoEmail = req.body;
     postInscricao(novoEmail);
-    res.send('Noticia salva!');
+    res.send('Email salvo!');
 })
 
 app.listen(3000, () => {
